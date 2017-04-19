@@ -7,6 +7,11 @@ import { displayConfigList } from './common'
 const listCommand = async() => {
 
 	const callback = async(configList) => {
+		if(configList.length === 0) {
+			console.log(chalk.yellow('No available boilerplate'));
+			return;
+		}
+
 		while(true) {
 			let selected = await inquirer.prompt([
 			    {

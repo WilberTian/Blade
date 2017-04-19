@@ -6,7 +6,11 @@ import { displayConfigList } from './common'
 
 const deleteCommand = async() => {	
 	const callback = async(configList) => {
-
+		if(configList.length === 0) {
+			console.log(chalk.yellow('No available boilerplate'));
+			return;
+		}
+		
 		let selected = await inquirer.prompt([
 		    {
 		        type: 'input',
