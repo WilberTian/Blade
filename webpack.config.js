@@ -2,9 +2,11 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
-  devtool: 'source-map',
+  target: 'node',
+  devtool: 'eval-source-map',
+  context: __dirname + "/src",
   entry: {
-    app: './src/index.js'
+    app: './index.js'
   },
   output: {
     path: path.join(__dirname, 'dist'),
@@ -12,11 +14,11 @@ module.exports = {
   },
   module: {
     rules:[{
-          test:/\.js$/,
-          loader:"babel-loader",
-          options:{presets: ["stage-0"]},
-          exclude:path.resolve(__dirname,'node_modules'),
-          include:path.resolve(__dirname,'src')
+          test: /\.js$/,
+          loader: "babel-loader",
+          options: { presets: ["es2015", "stage-0"] },
+          exclude: path.resolve(__dirname,'node_modules'),
+          include: path.resolve(__dirname,'src')
     }]
   }
 };
