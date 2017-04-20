@@ -24,6 +24,7 @@
     "babel-core": "^6.24.1",
     "babel-polyfill": "^6.23.0",
     "commander": "^2.9.0",
+    "execa": "^0.6.3",
     "fs-promise": "^2.0.2",
     "inquirer": "^3.0.6",
     "listr": "^0.11.0"
