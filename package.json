@@ -1,7 +1,7 @@
 {
   "name": "Blade",
   "version": "0.0.1",
-  "description": "",
+  "description": "Simple scaffold tool",
   "scripts": {
     "clean": "rimraf dist",
     "build:webpack": "webpack --config webpack.config.js --progress --color",
@@ -11,8 +11,8 @@
     "type": "git",
     "url": ""
   },
-  "author": "",
-  "license": "",
+  "author": "WilberTian",
+  "license": "MIT",
   "devDependencies": {
     "babel-loader": "^6.4.1",
     "babel-preset-es2015": "^6.24.1",
