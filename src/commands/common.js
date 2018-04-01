@@ -1,17 +1,14 @@
 import chalk from 'chalk';
 
+import { loadConfig } from '../config/configManager';
 
-import { readTplConfig } from '../tpl/tplManager';
-
-export const displayConfigList = async(callback) => {
-	let configList = readTplConfig()['list'];
-	let configNameList = [];
-
-	for(let [idx, config] of configList.entries()) {
-		configNameList.push(config['name']);
-		console.log(chalk.blue.bold((idx + 1) + '. ') + chalk.green(config.name));
+export const displayConfigList = (configList) => {
+    if(configList.length === 0) {
+		console.log(chalk.yellow('No available boilerplate'));
+		return;
+	} else {
+		configList.forEach((configItem, idx) => {
+			console.log(chalk.blue.bold((idx + 1) + '. ') + chalk.green(`${configItem.name} (${configItem.branch})`));
+		});
 	}
-
-	await callback(configList);
 };
-

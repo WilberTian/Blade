@@ -4,83 +4,144 @@ import execa from 'execa';
 import Listr from 'listr';
 import path from 'path';
 
-import dirExist from '../utils/file/dirExist';
-import { readTplConfig } from '../tpl/tplManager';
+import { fileExist, dirExist } from '../utils/file';
+import { loadConfig } from '../config/configManager';
+import { BLADE_HOME, PROJECT_BLADE_SCRIPT } from '../config/constants';
 
-const runInitTasks = async(name, repo, branch) => {
-	const cwd = process.cwd();
+const cwd = process.cwd();
 
-	const tasks = new Listr([
+const gitCloneTask = async (ctx) => {
+	const { name, repo, selectedBoilerplatePath } = ctx;
+
+	process.chdir(BLADE_HOME);
+
+	await execa('git', ['clone', repo, selectedBoilerplatePath]);
+	
+	ctx.withClone = true;
+};
+
+const gitPullTask = async (ctx) => {
+	const { selectedBoilerplatePath } = ctx;
+
+	process.chdir(selectedBoilerplatePath);
+	await execa('git', ['pull']);
+};
+
+const runInitTasks = async (name, repo, branch) => {
+	const selectedBoilerplatePath = path.join(BLADE_HOME, name);
+	const selectedBladeFilePath = path.join(BLADE_HOME, name, PROJECT_BLADE_SCRIPT);
+
+	let initTaskCtx = {
+		name,
+		repo,
+		branch,
+		selectedBoilerplatePath,
+		selectedBladeFilePath,
+		withClone: true,
+		yarn: true
+	};
+
+	const gitTasks = new Listr([
 		{
-			title: 'Init boilerplate repo',
-			task: () => {
-				return new Listr([
-					{
-						title: 'Clone remote boilerplate repo',
-						task: async(ctx, task) => {							
-							if(!await dirExist(path.join(cwd, name))) {
-								await execa('git', ['clone', repo]);
-							} else {
-								task.skip(repo + ' already exist!');
-							}
-						}
-					},
-					{
-						title: 'Switch to special branch',
-						task: async() => {
-							process.chdir(name);
-							await execa('git', ['checkout', branch]);
-							process.chdir(cwd);
-						}
-					}
-				]);
+			title: 'Clone boilerplate',
+			task: gitCloneTask,
+			skip: async (ctx) => {
+				if (await dirExist(ctx.selectedBoilerplatePath)) {
+					return `${ctx.name} already exist!`
+				}
 			}
 		},
 		{
-			title: 'Install package dependencies with npm',
-			task: async() => {
-				process.chdir(name);
-				await execa('npm', ['install']);
-				process.chdir(cwd);
-			}
+			title: 'Pull the latest code',
+			enabled: (ctx) => ctx.withClone === false,
+			task: gitPullTask
 		},
 		{
-			title: 'Run tests',
-			task: async() => {
-				process.chdir(name);
-				await execa('npm', ['test']);
-				process.chdir(cwd);
+			title: 'Switch branch',
+			task: async (ctx) => {
+				process.chdir(ctx.selectedBoilerplatePath);
+				await execa('git', ['checkout', branch]);
 			}
 		}
 	]);
 
-	await tasks.run().catch(err => {
-		console.error(chalk.red(err));
-	});
+	const packageTasks = new Listr([
+		{
+			title: 'Install package dependencies with yarn',
+			task: async(ctx, task) => {
+				process.chdir(ctx.selectedBoilerplatePath);
+				try {
+					await execa('yarn');
+				} catch(ex) {
+					ctx.yarn = false;
+					task.skip('yarn is not available');
+				}
+			},
+			skip: async (ctx) => {
+				if (!await fileExist(path.join(ctx.selectedBoilerplatePath, 'yarn.lock'))) {
+					ctx.yarn = false;
+					return 'yarn.lock is not exist';
+				}
+			}
+		},
+		{
+			title: 'Install package dependencies with npm',
+			enabled: ctx => ctx.yarn === false,
+			task: async(ctx, task) => {
+				process.chdir(ctx.selectedBoilerplatePath);
+				await execa('npm', ['install']);
+			}
+		}
+	]);
+
+	try {
+		initTaskCtx = await gitTasks.run(initTaskCtx);
+		initTaskCtx = await packageTasks.run(initTaskCtx);
+
+		if (await fileExist(selectedBladeFilePath)) {
+			const bladeTasks = new Listr([
+				{
+					title: 'Run blade.js',
+					task: async () => {
+
+					}
+				}
+			]);
+
+			await bladeTasks.run(initTaskCtx);
+		}
+	} catch (ex) {
+		console.error(chalk.red(ex));
+	}
 
 };
 
-const initCommand = async() => {
+const initCommand = async () => {
 
-	let configList = readTplConfig()['list'];
-	let configNameList = configList.map((config) => config['name']);
+	const configList = loadConfig()['list'];
+	const configObjectList = configList.map((configItme) => {
+		return {
+			name: `${configItme.name} (${configItme.branch})`,
+			value: configItme.name
+		};
+	});
 
 	if(configList.length === 0) {
 		console.log(chalk.yellow('No available boilerplate'));
 		return;
 	}
 
-	const selectedName = await inquirer.prompt([
+	const selectedConfig = await inquirer.prompt([
 	    {
 	        type: 'list',
 	        name: 'name',
 	        message: 'Select boilerplate to init project',
-	        choices: configNameList
+	        choices: configObjectList
 	    }
 	]);
 
-	const selectedConfig = configList.find((config) => config['name'] === selectedName['name']);
-	const { name, repo, branch } = selectedConfig;
+	const selectedConfigItem = configList.find((configItme) => configItme.name === selectedConfig.name);
+	const { name, repo, branch } = selectedConfigItem;
 
 	runInitTasks(name, repo, branch);
 

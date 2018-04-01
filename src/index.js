@@ -1,13 +1,13 @@
 import 'babel-polyfill';
 
 import initBladeCommands from './commands'
+import { createConfigIfNotExist } from './config/configManager'
 
-import { createTplConfigIfNotExist } from './tpl/tplManager'
-
-var main = async() => {
-	await createTplConfigIfNotExist();
-	
+const main = async () => {
+	await createConfigIfNotExist();
 	initBladeCommands();
 };
 
-main();
+main().catch((ex) => {
+    throw ex;
+});;

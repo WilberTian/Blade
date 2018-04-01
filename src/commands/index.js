@@ -22,7 +22,7 @@ export default () => {
 		.command('list')
 		.description('List all boilerplate config')
 		.alias('l')
-		.action(async() => {
+		.action(async () => {
 		    await listCommand();
 		});		
 
@@ -30,7 +30,7 @@ export default () => {
 		.command('add')
 		.description('Add boilerplate config')
 		.alias('a')
-		.action(async() => {
+		.action(async () => {
 		    await addCommand();
 		});	
 

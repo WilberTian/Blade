@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 
-import { addTplConfigItem } from '../tpl/tplManager';
+import { configItemExist, addConfigItem } from '../config/configManager';
 
 
 const addCommand = async() => {
@@ -10,19 +10,31 @@ const addCommand = async() => {
 	        type: 'input',
 	        name: 'name',
 	        message: 'Boilerplate name => ',
-	        validate: function (value) {
+	        validate: (value) => {
 	            var pass = value.match(/\w+/);
-	            if (pass) {
-	                return true;
-	            }
+	            if (!pass) {
+	                return 'The Boilerplate name should NOT be empty, please input!';
+				}
 
-	            return 'The Boilerplate name should NOT be empty';
+				if (configItemExist(value)) {
+					return "The Boilerplate with same name already exist!";
+				}
+
+	            return true;
 	        }
 	    },
 	    {
 	        type: 'input',
 	        name: 'repo',
-	        message: 'Boilerplate repo address => '
+			message: 'Boilerplate repo address => ',
+			validate: (value) => {
+	            var pass = value.match(/((git|ssh|http(s)?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/);
+	            if (pass) {
+	                return true;
+				}
+				
+	            return 'Please input a valid repo url!';
+	        }
 	    },
 	    {
 	        type: 'input',
@@ -34,9 +46,9 @@ const addCommand = async() => {
 
 	const configItem = await inquirer.prompt(questions);
 
-	await addTplConfigItem(configItem);
+	await addConfigItem(configItem);
 
-	console.log(chalk.green('Success!') + ' - ' + chalk.black.bgGreen.bold(configItem.name) + ' was added!');
+	console.log(chalk.green('Success!') + ' - ' + chalk.white.bgGreen.bold(`${configItem.name} (${configItem.branch})`) + ' was added!');
 };
 
 export default addCommand;
