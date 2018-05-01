@@ -8,7 +8,10 @@ const listCommand = async () => {
 
 	const configList = loadConfig()['list'];
 
-	displayConfigList(configList);
+	const hasAvailableConfigs = displayConfigList(configList);
+	if (!hasAvailableConfigs) {
+		return;
+	}
 
 	while(true) {
 		let selected = await inquirer.prompt([

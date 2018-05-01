@@ -8,7 +8,10 @@ const deleteCommand = async () => {
 
 	const configList = loadConfig()['list'];
 
-	displayConfigList(configList);
+	const hasAvailableConfigs = displayConfigList(configList);
+	if (!hasAvailableConfigs) {
+		return;
+	}
 
 	let selected = await inquirer.prompt([
 		{

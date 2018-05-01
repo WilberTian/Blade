@@ -3,7 +3,7 @@
   "version": "0.0.8",
   "description": "Simple scaffold tool",
   "bin": {
-    "shamrock": "./index.js"
+    "sr": "./index.js"
   },
   "scripts": {
     "build": "rm -rf ./build && node ./scripts/build.js",
