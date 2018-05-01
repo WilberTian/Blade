@@ -1,6 +1,6 @@
 {
   "name": "shamrock",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Simple scaffold tool",
   "bin": {
     "sr": "./index.js"
