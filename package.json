@@ -1,6 +1,6 @@
 {
   "name": "shamrock",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Simple scaffold tool",
   "bin": {
     "shamrock": "./index.js"
@@ -29,6 +29,7 @@
     "commander": "^2.9.0",
     "execa": "^0.6.3",
     "fs-extra": "^5.0.0",
+    "glob": "^7.1.2",
     "glob-promise": "^3.4.0",
     "inquirer": "^3.0.6",
     "listr": "^0.13.0",
