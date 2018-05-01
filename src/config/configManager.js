@@ -2,9 +2,9 @@ import path from 'path';
 import fse from 'fs-extra';
 
 import { fileExist, dirExist } from '../utils/file'
-import { BLADE_HOME, CONFIG_FILE_NAME, DEFAULT_CONFIGS } from './constants';
+import { SHAMROCK_HOME, CONFIG_FILE_NAME, DEFAULT_CONFIGS } from './constants';
 
-const configFilePath = path.join(BLADE_HOME, CONFIG_FILE_NAME);
+const configFilePath = path.join(SHAMROCK_HOME, CONFIG_FILE_NAME);
 
 export const createConfigIfNotExist = async () => {
 	if(!await fileExist(configFilePath)) {

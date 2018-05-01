@@ -1,9 +1,9 @@
 {
-  "name": "blade",
+  "name": "shamrock",
   "version": "0.0.1",
   "description": "Simple scaffold tool",
   "bin": {
-    "blade": "./index.js"
+    "shamrock": "./index.js"
   },
   "scripts": {
     "build": "rm -rf ./build && node ./scripts/build.js",

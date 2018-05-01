@@ -1,8 +1,8 @@
 
 
-export const BLADE_HOME = `${process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE}/.blade`;
+export const SHAMROCK_HOME = `${process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE}/.shamrock`;
 export const CONFIG_FILE_NAME = 'config.json';
-export const PROJECT_BLADE_SCRIPT = 'scripts/blade.js';
+export const PROJECT_SHAMROCK_SCRIPT = 'scripts/shamrock.js';
 
 
 `

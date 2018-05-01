@@ -6,14 +6,14 @@ import path from 'path';
 
 import { fileExist, dirExist } from '../utils/file';
 import { loadConfig } from '../config/configManager';
-import { BLADE_HOME, PROJECT_BLADE_SCRIPT } from '../config/constants';
+import { SHAMROCK_HOME, PROJECT_SHAMROCK_SCRIPT } from '../config/constants';
 
 const cwd = process.cwd();
 
 const gitCloneTask = async (ctx) => {
 	const { name, repo, selectedBoilerplatePath } = ctx;
 
-	process.chdir(BLADE_HOME);
+	process.chdir(SHAMROCK_HOME);
 
 	await execa('git', ['clone', repo, selectedBoilerplatePath]);
 	
@@ -28,8 +28,8 @@ const gitPullTask = async (ctx) => {
 };
 
 const runInitTasks = async (name, repo, branch) => {
-	const selectedBoilerplatePath = path.join(BLADE_HOME, name);
-	const selectedBladeFilePath = path.join(BLADE_HOME, name, PROJECT_BLADE_SCRIPT);
+	const selectedBoilerplatePath = path.join(SHAMROCK_HOME, name);
+	const selectedBladeFilePath = path.join(SHAMROCK_HOME, name, PROJECT_SHAMROCK_SCRIPT);
 
 	let initTaskCtx = {
 		name,
@@ -99,16 +99,16 @@ const runInitTasks = async (name, repo, branch) => {
 		initTaskCtx = await packageTasks.run(initTaskCtx);
 
 		if (await fileExist(selectedBladeFilePath)) {
-			const bladeTasks = new Listr([
+			const shamrockTasks = new Listr([
 				{
-					title: 'Run blade.js',
+					title: 'Run shamrock.js',
 					task: async () => {
 
 					}
 				}
 			]);
 
-			await bladeTasks.run(initTaskCtx);
+			await shamrockTasks.run(initTaskCtx);
 		}
 	} catch (ex) {
 		console.error(chalk.red(ex));
