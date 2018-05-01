@@ -7,6 +7,12 @@ import path from 'path';
 import { fileExist, dirExist } from '../utils/file';
 import { loadConfig } from '../config/configManager';
 import { SHAMROCK_HOME, PROJECT_SHAMROCK_SCRIPT } from '../config/constants';
+import copyFiles from '../lib/copyFiles';
+import removeFiles from '../lib/removeFiles';
+import updateFile from '../lib/updateFile';
+import updateJson from '../lib/updateJson';
+import writeFile from '../lib/writeFile';
+import writeJson from '../lib/writeJson';
 
 const cwd = process.cwd();
 
@@ -29,14 +35,14 @@ const gitPullTask = async (ctx) => {
 
 const runInitTasks = async (name, repo, branch) => {
 	const selectedBoilerplatePath = path.join(SHAMROCK_HOME, name);
-	const selectedBladeFilePath = path.join(SHAMROCK_HOME, name, PROJECT_SHAMROCK_SCRIPT);
+	const selectedShamrockFilePath = path.join(SHAMROCK_HOME, name, PROJECT_SHAMROCK_SCRIPT);
 
 	let initTaskCtx = {
 		name,
 		repo,
 		branch,
 		selectedBoilerplatePath,
-		selectedBladeFilePath,
+		selectedShamrockFilePath,
 		withClone: true,
 		yarn: true
 	};
@@ -87,7 +93,7 @@ const runInitTasks = async (name, repo, branch) => {
 		{
 			title: 'Install package dependencies with npm',
 			enabled: ctx => ctx.yarn === false,
-			task: async(ctx, task) => {
+			task: async (ctx, task) => {
 				process.chdir(ctx.selectedBoilerplatePath);
 				await execa('npm', ['install']);
 			}
@@ -98,17 +104,30 @@ const runInitTasks = async (name, repo, branch) => {
 		initTaskCtx = await gitTasks.run(initTaskCtx);
 		initTaskCtx = await packageTasks.run(initTaskCtx);
 
-		if (await fileExist(selectedBladeFilePath)) {
+		if (await fileExist(selectedShamrockFilePath)) {
+			const getShamrockTasks = require(selectedShamrockFilePath);
+
+			let shamrockCtx = {
+				shamrockUtils: {
+					copyFiles: copyFiles(selectedBoilerplatePath, cwd),
+					removeFiles: removeFiles(cwd),
+					updateFile: updateFile(selectedBoilerplatePath, cwd),
+					updateJson: updateJson(selectedBoilerplatePath, cwd),
+					writeFile: writeFile(cwd),
+					writeJson: writeJson(cwd)
+				}
+			};
+
 			const shamrockTasks = new Listr([
 				{
 					title: 'Run shamrock.js',
 					task: async () => {
-
+						return getShamrockTasks();
 					}
 				}
 			]);
 
-			await shamrockTasks.run(initTaskCtx);
+			await shamrockTasks.run(shamrockCtx);
 		}
 	} catch (ex) {
 		console.error(chalk.red(ex));
