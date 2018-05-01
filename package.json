@@ -8,7 +8,7 @@
   "scripts": {
     "build": "rm -rf ./build && node ./scripts/build.js",
     "beta": "npm run build && npm publish --tag beta",
-    "release": "npm run build && standard-version && npm publish --registry=https://registry.npmjs.org/"
+    "release": "npm run build && standard-version && git push --follow-tags && npm publish --registry=https://registry.npmjs.org/"
   },
   "repository": {
     "type": "git",
